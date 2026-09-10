@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CellCounter_Marker_File>
+ <Image_Properties>
+     <Image_Filename>P8174782.JPG</Image_Filename>
+     <X_Calibration>1.0</X_Calibration>
+     <Z_Calibration>1.0</Z_Calibration>
+     <Calibration_Unit>pixel</Calibration_Unit>
+     <Y_Calibration>1.0</Y_Calibration>
+ </Image_Properties>
+ <Marker_Data>
+     <Current_Type>0</Current_Type>
+     <Marker_Type>
+         <Type>1</Type>
+         <Name>Type 1</Name>
+         <Marker>
+             <MarkerX>1598</MarkerX>
+             <MarkerY>294</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>1609</MarkerX>
+             <MarkerY>663</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>1365</MarkerX>
+             <MarkerY>657</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>1603</MarkerX>
+             <MarkerY>879</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>1098</MarkerX>
+             <MarkerY>934</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>1053</MarkerX>
+             <MarkerY>822</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>1015</MarkerX>
+             <MarkerY>819</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>1127</MarkerX>
+             <MarkerY>1164</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>1459</MarkerX>
+             <MarkerY>1183</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>1645</MarkerX>
+             <MarkerY>1204</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>1270</MarkerX>
+             <MarkerY>1348</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>440</MarkerX>
+             <MarkerY>412</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>400</MarkerX>
+             <MarkerY>658</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>906</MarkerX>
+             <MarkerY>765</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>624</MarkerX>
+             <MarkerY>976</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>466</MarkerX>
+             <MarkerY>1236</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+     </Marker_Type>
+     <Marker_Type>
+         <Type>2</Type>
+         <Name>Type 2</Name>
+     </Marker_Type>
+     <Marker_Type>
+         <Type>3</Type>
+         <Name>Type 3</Name>
+     </Marker_Type>
+     <Marker_Type>
+         <Type>4</Type>
+         <Name>Type 4</Name>
+     </Marker_Type>
+     <Marker_Type>
+         <Type>5</Type>
+         <Name>Type 5</Name>
+     </Marker_Type>
+     <Marker_Type>
+         <Type>6</Type>
+         <Name>Type 6</Name>
+     </Marker_Type>
+     <Marker_Type>
+         <Type>7</Type>
+         <Name>Type 7</Name>
+     </Marker_Type>
+     <Marker_Type>
+         <Type>8</Type>
+         <Name>Type 8</Name>
+     </Marker_Type>
+ </Marker_Data>
+</CellCounter_Marker_File>

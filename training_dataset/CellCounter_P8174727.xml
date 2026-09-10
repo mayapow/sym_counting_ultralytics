@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CellCounter_Marker_File>
+ <Image_Properties>
+     <Image_Filename>P8174727.JPG</Image_Filename>
+     <X_Calibration>1.0</X_Calibration>
+     <Z_Calibration>1.0</Z_Calibration>
+     <Calibration_Unit>pixel</Calibration_Unit>
+     <Y_Calibration>1.0</Y_Calibration>
+ </Image_Properties>
+ <Marker_Data>
+     <Current_Type>0</Current_Type>
+     <Marker_Type>
+         <Type>1</Type>
+         <Name>Type 1</Name>
+         <Marker>
+             <MarkerX>878</MarkerX>
+             <MarkerY>124</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>1026</MarkerX>
+             <MarkerY>62</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>1210</MarkerX>
+             <MarkerY>104</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>528</MarkerX>
+             <MarkerY>302</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>760</MarkerX>
+             <MarkerY>1246</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>932</MarkerX>
+             <MarkerY>936</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>1302</MarkerX>
+             <MarkerY>372</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>1356</MarkerX>
+             <MarkerY>134</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>1558</MarkerX>
+             <MarkerY>581</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+         <Marker>
+             <MarkerX>1586</MarkerX>
+             <MarkerY>1384</MarkerY>
+             <MarkerZ>1</MarkerZ>
+         </Marker>
+     </Marker_Type>
+     <Marker_Type>
+         <Type>2</Type>
+         <Name>Type 2</Name>
+     </Marker_Type>
+     <Marker_Type>
+         <Type>3</Type>
+         <Name>Type 3</Name>
+     </Marker_Type>
+     <Marker_Type>
+         <Type>4</Type>
+         <Name>Type 4</Name>
+     </Marker_Type>
+     <Marker_Type>
+         <Type>5</Type>
+         <Name>Type 5</Name>
+     </Marker_Type>
+     <Marker_Type>
+         <Type>6</Type>
+         <Name>Type 6</Name>
+     </Marker_Type>
+     <Marker_Type>
+         <Type>7</Type>
+         <Name>Type 7</Name>
+     </Marker_Type>
+     <Marker_Type>
+         <Type>8</Type>
+         <Name>Type 8</Name>
+     </Marker_Type>
+ </Marker_Data>
+</CellCounter_Marker_File>
