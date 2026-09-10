@@ -1,0 +1,13 @@
+{
+  "n_images": 119,
+  "sum_tp": 4542,
+  "sum_fp": 487,
+  "sum_fn": 549,
+  "mean_precision": 0.8571652002907919,
+  "mean_recall": 0.816930473392142,
+  "mean_f1": 0.8272279974200896,
+  "mean_abs_err": 3.6134453781512605,
+  "median_abs_err": 2.0,
+  "r2_pred_vs_actual": 0.9819810401974823,
+  "tol_px_used": 8.61
+}
