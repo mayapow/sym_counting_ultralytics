@@ -1,21 +1,21 @@
 #sym_counting_ultralytics
 
 #Script by Maya Powell
-Created: November 4th, 2025
-Last edited: September 10th, 2026
-Created using the help of generative AI - Claude Sonnet 4.5
+#Created: November 4th, 2025
+#Last edited: September 10th, 2026
+#Created using the help of generative AI - Claude Sonnet 4.5
 
-These scripts are created for processing hemocytometer images of coral symbiont cells to generate accurate cell counts
-These can be run either on a computing cluster (recommended) your personal computer (not recommended)
-The pipeline below is a general walkthrough and will need to be edited for your personal dataset and computing setup
-These were generated for use in linux/unix as python scripts
+#These scripts are created for processing hemocytometer images of coral symbiont cells to generate accurate cell counts
+#These can be run either on a computing cluster (recommended) your personal computer (not recommended)
+#The pipeline below is a general walkthrough and will need to be edited for your personal dataset and computing setup
+#These were generated for use in linux/unix as python scripts
 
-#What you need to replace to utilize this pipeline
+What you need to replace to utilize this pipeline
 1. Folder of images you are interested in processing (here I have included a very small sample of this (all_images_example)
 2. Training dataset images - a subset of 10% of your full image dataset, make sure to include representative samples if you have any differences in image quality/exposure/coral species/etc. (training_dataset)
 3. Training dataset cell counts from Fiji (Image J). Create this by opening your training datasets one by one in Image J. For each image go to Plugins > Analyze > Cell counter. A new counter window will open. To begin counting, click ‘Initialize’ then ‘Type 1’ in the cell counter window. Once you are done, click "Save Markers" and save them to your training dataset folder.
 
-#Example process
+Example process
 1. Create and activate a conda environment
 conda create symcount
 conda activate symcount
@@ -28,28 +28,41 @@ cd sym_counting_ultralytics
 export PYTHONNOUSERSITE=1   # avoid user-site packages leaking in
 
 #install pandas
+```
 pip install pandas
+```
 
 #for the rest of the installation
 # 0) sanity: confirm we’re in the right interpreter
+```
 python -c "import sys; print(sys.executable)"
+```
 #this should show you the correct filepath
 
 #pin NumPy to 1.x FIRST (prevents later upgrades)
+```
 python -m pip install "numpy==1.26.4"
+```
 
 #install a CPU torch build that works with NumPy 1.x
+```
 python -m pip install --no-cache-dir \
   "torch==2.2.2" "torchvision==0.17.2" \
   --index-url https://download.pytorch.org/whl/cpu
+  ```
 
 #install Ultralytics WITHOUT pulling deps (so it can’t bump numpy)
+```
 python -m pip install --no-deps "ultralytics==8.3.225"
+```
 
 #install exactly ONE OpenCV (headless is safest for servers/conda)
+```
 python -m pip install "opencv-python-headless==4.10.0.84" matplotlib PyYAML tqdm psutil
+```
 
 #verify versions (these must print successfully)
+```
 python - <<'PY'
 import numpy, torch, ultralytics, cv2
 print("numpy", numpy.__version__)
@@ -57,6 +70,7 @@ print("torch", torch.__version__)
 print("ultralytics", ultralytics.__version__)
 print("opencv", cv2.__version__)
 PY
+```
 
 #these are the versions you should have:
 #numpy 1.26.4
@@ -66,6 +80,8 @@ PY
 
 4. Create roi (region of interest) box for training dataset- here that is the hemocytometer 5x5 grid
 This prompts you to click the top left and bottom right to generate the roi square and set your scale
+
+```
 python roi_prepare_from_xml_v2.py \
   --in_dir  ~/sym_counting_ultralytics/training_dataset \
   --out_dir ~/sym_counting_ultralytics/yolo_data_b16 \
@@ -73,7 +89,8 @@ python roi_prepare_from_xml_v2.py \
   --box_um 10 \
   --val_frac 0.15 \
   --filter_to_roi true
-    
+```  
+  
 and then outputs the overlays with your cells that you selected as true in this folder:
 
 yolo_data_b16/overlays/<image>_truth.png
@@ -84,10 +101,15 @@ If the boxes for your specific symbiont type look a bit small/large, re-run with
 3. Train a small detector (ultralytics)
 This will take a long time (single thread took ~11 hours for 120 images)
 
+```
 export OMP_NUM_THREADS=1 #change number of threads to increase speed
+```
 
+```
 RUNNAME=train_y8s_e100_b16_1280_2Sept2026 #define run name with info
+```
 
+```
 yolo detect train \
   model=yolov8s.pt \
   data=~/sym_counting_ultralytics/yolo_data_b16/sym_dataset.yaml \
@@ -100,6 +122,7 @@ yolo detect train \
   workers=0 \
   patience=50 \
   name=$RUNNAME
+```
   
 #If recall is low, increase epochs (e.g to 120) and/or increase imgsz
 
@@ -107,12 +130,14 @@ yolo detect train \
 
 #from before: RUNNAME=train_y8s_e100_b16_1280_2July2026
 
+```
 python infer_and_count.py \
   --in_dir  ~/sym_counting_ultralytics/training_dataset \
   --out_dir ~/sym_counting_ultralytics/detections_y8s_e100_b16_1280_2Sept2026 \
   --roi_json ~/sym_counting_ultralytics/roi_cache.json \
   --weights  ~/sym_counting_ultralytics/runs/detect/$RUNNAME/weights/best.pt \
   --imgsz 1280 --conf 0.35 --iou 0.50
+```
   
 #if it is underestimating, lower conf (e.g. to 0.3), or overestimating raise (e.g. to 0.4)
 #I ran multiple times to test and 0.35 was best for my dataset
@@ -120,6 +145,7 @@ python infer_and_count.py \
 5. Evaluate training run 
 This uses a spatial evaluation script to get both false positive and false negative counts
 
+```
 python evaluate_spatial.py \
   --in_dir  ~/sym_counting_ultralytics/training_dataset \
   --roi_json ~/sym_counting_ultralytics/roi_cache.json \
@@ -129,14 +155,18 @@ python evaluate_spatial.py \
   --out_csv ~/sym_counting_ultralytics/eval_spatial_training_2sept2026.csv \
   --out_dir ~/sym_counting_ultralytics/eval_spatial_debug_2sept2026 \
   --save_overlays
+```
   
 #and in case you have to reclick the ROI for any individual images that were mistakes or weird:
 #add in the --reclick argument e.g.:
+```
   --reclick P8174886 \
+```
   
 6. Run new samples
 I would test this on a small image set of ~10 images first to make sure you are satisfied with the performance before completing your entire dataset
 
+```
 python infer_and_count.py \
   --in_dir  ~/sym_counting_ultralytics/all_images_example \
   --out_dir ~/sym_counting_ultralytics/all_image_detections_example \
@@ -146,12 +176,14 @@ python infer_and_count.py \
   --conf 0.35 \
   --iou 0.5 \
   --tta 
+```
 
 #while I was running this on my personal computer it stopped mid-run because I ran out of space
 #to clear this I removed my cache here:
+```
 rm -f "$HOME/Library/Application Support/Ultralytics/persistent_cache.json"
+```
   
-
 ####Additional notes on how each script works:
 
 roi_prepare_from_xml_v2.py (dataset & ROI prep)
