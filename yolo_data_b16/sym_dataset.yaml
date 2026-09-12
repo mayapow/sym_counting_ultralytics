@@ -1,0 +1,5 @@
+path: /Users/mayapowell/Documents/sym_counting_oki/yolo_data_b16
+train: images/train
+val: images/val
+names:
+  0: symbiont
