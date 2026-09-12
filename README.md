@@ -193,6 +193,7 @@ to clear this I removed my cache here:
 
 ```
 rm -f "$HOME/Library/Application Support/Ultralytics/persistent_cache.json"
+```
 
 
 7. Extract counts
