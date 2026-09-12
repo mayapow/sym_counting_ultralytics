@@ -1,22 +1,22 @@
-#sym_counting_ultralytics
+# sym_counting_ultralytics
 
 #Script by Maya Powell
 #Created: November 4th, 2025
 #Last edited: September 10th, 2026
 #Created using the help of generative AI - Claude Sonnet 4.5
 
-General information
+# General information
 1. These scripts are created for processing hemocytometer images of coral symbiont cells to generate accurate cell counts
 2. These can be run either on a computing cluster (recommended) your personal computer (not recommended)
 3. The pipeline below is a general walkthrough and will need to be edited for your personal dataset and computing setup
 4. These were generated for use in linux/unix as python scripts
 
-What you need to replace to utilize this pipeline
+# What you need to replace to utilize this pipeline
 1. Folder of images you are interested in processing (here I have included a very small sample of this (all_images_example)
 2. Training dataset images - a subset of 10% of your full image dataset, make sure to include representative samples if you have any differences in image quality/exposure/coral species/etc. (training_dataset)
 3. Training dataset cell counts from Fiji (Image J). Create this by opening your training datasets one by one in Image J. For each image go to Plugins > Analyze > Cell counter. A new counter window will open. To begin counting, click ‘Initialize’ then ‘Type 1’ in the cell counter window. Once you are done, click "Save Markers" and save them to your training dataset folder.
 
-Example process
+# Example process
 1. Create and activate a conda environment
 ```
 conda create symcount
@@ -187,60 +187,52 @@ python infer_and_count.py \
   --tta 
 ```
 
-while I was running this on my personal computer it stopped mid-run because I ran out of space. 
 
-To clear this I removed my cache here:
+while I was running this on my personal computer it stopped mid-run because I ran out of space
+to clear this I removed my cache here:
+
 ```
 rm -f "$HOME/Library/Application Support/Ultralytics/persistent_cache.json"
-```
-  
-####Additional notes on how each script works:
+
+
+7. Extract counts
+Within your --out_dir (here: all_image_detections_example) there is an excel spreadsheet labeled "counts"
+You can export this counts spreadsheet and align it with your metadata to analyze symbiont density and average across replicates etc.
+In this folder, you can also examine all of your image detections to assess how well the model worked on your counts and adjust your model as needed
+
+# Additional notes on how each script works:
 
 roi_prepare_from_xml_v2.py (dataset & ROI prep)
 
 Purpose: turn your manually annotated images (Fiji CellCounter XML + raw JPG) into a clean YOLO dataset and an ROI cache.
 
-What it does
-
-Reads CellCounter XML (CellCounter_<stem>.xml), pulls Type-1 markers (your blue-dot truths), and pairs them to the matching raw image.
-
-Builds/updates an ROI cache (roi_cache.json).
-
-If an ROI is missing or invalid, it can prompt you to click top-left and bottom-right of the 5×5 grid (1 mm wide → 25 squares).
-
-Transforms ground-truth points to YOLO labels inside the ROI:
-
-Converts dot annotations to small boxes centered on each dot (YOLO needs boxes, not points).
-
-Writes one labels/<stem>.txt per image (class, x_center, y_center, width, height in normalized ROI coordinates).
-
-Splits images and labels into yolo_data/train/ and yolo_data/val/ (stratified or simple split).
-
-(Optional) QA overlays so you can visually verify ROI and label placement.
+What it does: 
+1. Reads CellCounter XML (CellCounter_<stem>.xml), pulls Type-1 markers (your blue-dot truths), and pairs them to the matching raw image.
+2. Builds/updates an ROI cache (roi_cache.json).
+3. If an ROI is missing or invalid, it can prompt you to click top-left and bottom-right of the 5×5 grid (1 mm wide → 25 squares).
+4. Transforms ground-truth points to YOLO labels inside the ROI:
+5. Converts dot annotations to small boxes centered on each dot (YOLO needs boxes, not points).
+6. Writes one labels/<stem>.txt per image (class, x_center, y_center, width, height in normalized ROI coordinates).
+7. Splits images and labels into yolo_data/train/ and yolo_data/val/ (stratified or simple split).
+8. (Optional) QA overlays so you can visually verify ROI and label placement.
 
 Key inputs: raw JPGs, CellCounter_*.xml.
 Outputs: yolo_data/{images,labels}/{train,val}, roi_cache.json, optional overlays.
 
-Knobs you can tweak
-
-Train/val split fraction.
-
-The box size used to convert dots → YOLO boxes (slightly larger boxes can help the detector learn tiny objects).
-
-Whether to re-click ROIs or reuse cached ones.
+Knobs you can tweak: 
+1. Train/val split fraction.
+2. The box size used to convert dots → YOLO boxes (slightly larger boxes can help the detector learn tiny objects).
+3. Whether to re-click ROIs or reuse cached ones.
 
 yolo detect train (model training)
 
 Purpose: train a detector to find symbiont cells inside the ROI crops.
 
-What it does
-
-Loads a YOLOv8 model (e.g., yolov8s.pt or yolov8n.pt) and your sym_dataset.yaml pointing to yolo_data/.
-
-Trains for N epochs with your chosen image size and augmentations.
-
-Typical command
-
+What it does:
+1. Loads a YOLOv8 model (e.g., yolov8s.pt or yolov8n.pt) and your sym_dataset.yaml pointing to yolo_data/.
+2. Trains for N epochs with your chosen image size and augmentations.
+3. Typical command:
+```
 yolo detect train \
   model=yolov8s.pt \
   data=.../yolo_data/sym_dataset.yaml \
@@ -249,48 +241,33 @@ yolo detect train \
   batch=16 \
   mosaic=0 degrees=5 translate=0.05 scale=0.10 hsv_h=0.0 hsv_s=0.15 hsv_v=0.15 fliplr=0.0 \
   workers=0
-
+```
 
 Why these settings
+1. imgsz=1280: more pixels helps with small, round cells.
+2. mosaic=0 and gentle geometric/color augs: preserve the fine texture and roundness; avoid heavy mosaics that distort scale.
+3. Small model (y8n/y8s): good balance for CPU/mac training.
 
-imgsz=1280: more pixels helps with small, round cells.
-
-mosaic=0 and gentle geometric/color augs: preserve the fine texture and roundness; avoid heavy mosaics that distort scale.
-
-Small model (y8n/y8s): good balance for CPU/mac training.
-
-Outputs
-
-runs/detect/train/* with best.pt, plots (results.png, labels.jpg), tensorboard logs, and validation metrics.
+Outputs: runs/detect/train/* with best.pt, plots (results.png, labels.jpg), tensorboard logs, and validation metrics.
 
 What to monitor
-
-Val plots and labels.jpg (sanity check).
-
-If the model undercounts, consider:
-
-Lower conf or increase box size during label generation,
-
-Train longer or move from y8n → y8s → y8m if you have compute,
-
-Add more diverse training images.
+1. Val plots and labels.jpg (sanity check).
+2. If the model undercounts, consider:
+- Lower conf or increase box size during label generation,
+- Train longer or move from y8n → y8s → y8m if you have compute,
+- Add more diverse training images.
 
 infer_and_count.py (production inference & counting)
 
 Purpose: run the trained model on new images, restricted to the 5×5 ROI, and save both overlays and a counts.csv.
 
-What it does
-
-Loads ROI cache (roi_cache.json). If an image is missing or has a bad ROI, it prompts you to click TL/BR of the 5×5 grid (with R to reuse last box).
-
-Crops the image to the ROI, runs YOLO, and collects detections.
-
-Writes an overlay (raw image + red ROI box + green boxes) and appends a row to counts.csv with image_id and count.
-
-Supports --tta (test-time augmentation) to boost recall for faint/partial cells.
-
-Typical command
-
+What it does:
+1. Loads ROI cache (roi_cache.json). If an image is missing or has a bad ROI, it prompts you to click TL/BR of the 5×5 grid (with R to reuse last box).
+2. Crops the image to the ROI, runs YOLO, and collects detections.
+3. Writes an overlay (raw image + red ROI box + green boxes) and appends a row to counts.csv with image_id and count.
+4. Supports --tta (test-time augmentation) to boost recall for faint/partial cells.
+5. Typical command:
+```
 python infer_and_count.py \
   --in_dir  ~/.../new_images \
   --out_dir ~/.../detections_final \
@@ -300,39 +277,25 @@ python infer_and_count.py \
   --conf 0.35 \
   --iou 0.5 \
   --tta
-
+```
 
 Key parameters
-
 --conf: confidence threshold; your runs suggested 0.35–0.40 is the sweet spot (lowest MAE).
-
 --tta: on for higher recall (slower).
 
 ROI cache is written atomically to avoid corruption; you can re-pick any image’s ROI as needed.
 
 Outputs
-
-Overlays: <stem>_det.png (raw image with ROI and detections).
-
-counts.csv: tidy table for downstream merging.
+1. Overlays: <image>_det.png (raw image with ROI and detections).
+2. counts.csv: tidy table for downstream merging.
 
 How the pieces fit together
+1. roi_prepare_from_xml_v2.py: builds clean training data + ROI cache from your Fiji annotations.
+2. yolo detect train: learns to detect symbionts within ROI crops using your curated labels.
+3. evaluate_spatial.py: spatial TP/FP/FN by matching detections to ground-truth points (with ROI re-picker and µm→px matching tolerance).
+3. infer_and_count.py: applies the trained detector to new ROIs, saves overlays, and counts.
 
-roi_prepare_from_xml_v2.py
-builds clean training data + ROI cache from your Fiji annotations.
-
-yolo detect train
-learns to detect symbionts within ROI crops using your curated labels.
-
-infer_and_count.py
-applies the trained detector to new ROIs, saves overlays, and counts.
-
-Optional evals you have:
-
-evaluate_training_set.py: quick count-level accuracy against XML.
-
-evaluate_spatial.py: spatial TP/FP/FN by matching detections to ground-truth points (with ROI re-picker and µm→px matching tolerance).
-
+For spatial training eval (e.g. eval_spatial_training_2Sept2026.csv)
 | **Column**  | **Meaning**                                                                                                    | **Units / Notes** |   |       |
 | ----------- | -------------------------------------------------------------------------------------------------------------- | ----------------- | - | ----- |
 | `image`     | The base filename (stem) of the image analyzed (e.g. `P8164337`)                                               | –                 |   |       |
