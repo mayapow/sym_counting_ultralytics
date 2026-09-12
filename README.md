@@ -5,10 +5,11 @@
 #Last edited: September 10th, 2026
 #Created using the help of generative AI - Claude Sonnet 4.5
 
-#These scripts are created for processing hemocytometer images of coral symbiont cells to generate accurate cell counts
-#These can be run either on a computing cluster (recommended) your personal computer (not recommended)
-#The pipeline below is a general walkthrough and will need to be edited for your personal dataset and computing setup
-#These were generated for use in linux/unix as python scripts
+General information
+1. These scripts are created for processing hemocytometer images of coral symbiont cells to generate accurate cell counts
+2. These can be run either on a computing cluster (recommended) your personal computer (not recommended)
+3. The pipeline below is a general walkthrough and will need to be edited for your personal dataset and computing setup
+4. These were generated for use in linux/unix as python scripts
 
 What you need to replace to utilize this pipeline
 1. Folder of images you are interested in processing (here I have included a very small sample of this (all_images_example)
@@ -17,51 +18,57 @@ What you need to replace to utilize this pipeline
 
 Example process
 1. Create and activate a conda environment
+```
 conda create symcount
 conda activate symcount
+```
 
 2. Navigate to the folder where you are doing work
+```
 cd sym_counting_ultralytics
+```
 
 3. Install or activate packages and make sure all versions are correct
 
+```
 export PYTHONNOUSERSITE=1   # avoid user-site packages leaking in
+```
 
-#install pandas
+install pandas
 ```
 pip install pandas
 ```
 
-#for the rest of the installation
-# 0) sanity: confirm we’re in the right interpreter
+for the rest of the installation
+sanity: confirm we’re in the right interpreter
 ```
 python -c "import sys; print(sys.executable)"
 ```
-#this should show you the correct filepath
+this should show you the correct filepath
 
-#pin NumPy to 1.x FIRST (prevents later upgrades)
+pin NumPy to 1.x FIRST (prevents later upgrades)
 ```
 python -m pip install "numpy==1.26.4"
 ```
 
-#install a CPU torch build that works with NumPy 1.x
+install a CPU torch build that works with NumPy 1.x
 ```
 python -m pip install --no-cache-dir \
   "torch==2.2.2" "torchvision==0.17.2" \
   --index-url https://download.pytorch.org/whl/cpu
   ```
 
-#install Ultralytics WITHOUT pulling deps (so it can’t bump numpy)
+install Ultralytics WITHOUT pulling deps (so it can’t bump numpy)
 ```
 python -m pip install --no-deps "ultralytics==8.3.225"
 ```
 
-#install exactly ONE OpenCV (headless is safest for servers/conda)
+install exactly ONE OpenCV (headless is safest for servers/conda)
 ```
 python -m pip install "opencv-python-headless==4.10.0.84" matplotlib PyYAML tqdm psutil
 ```
 
-#verify versions (these must print successfully)
+verify versions (these must print successfully)
 ```
 python - <<'PY'
 import numpy, torch, ultralytics, cv2
@@ -72,11 +79,11 @@ print("opencv", cv2.__version__)
 PY
 ```
 
-#these are the versions you should have:
-#numpy 1.26.4
-#torch 2.2.2
-#ultralytics 8.3.225
-#opencv 4.10.0
+these are the versions you should have:
+1. numpy 1.26.4
+2. torch 2.2.2
+3. ultralytics 8.3.225
+4. opencv 4.10.0
 
 4. Create roi (region of interest) box for training dataset- here that is the hemocytometer 5x5 grid
 This prompts you to click the top left and bottom right to generate the roi square and set your scale
@@ -124,11 +131,11 @@ yolo detect train \
   name=$RUNNAME
 ```
   
-#If recall is low, increase epochs (e.g to 120) and/or increase imgsz
+If recall is low, increase epochs (e.g to 120) and/or increase imgsz
 
 4. Run the detector on your training set to evaluate itʻs efficacy 
 
-#from before: RUNNAME=train_y8s_e100_b16_1280_2July2026
+from before: RUNNAME=train_y8s_e100_b16_1280_2Sept2026
 
 ```
 python infer_and_count.py \
@@ -139,8 +146,9 @@ python infer_and_count.py \
   --imgsz 1280 --conf 0.35 --iou 0.50
 ```
   
-#if it is underestimating, lower conf (e.g. to 0.3), or overestimating raise (e.g. to 0.4)
-#I ran multiple times to test and 0.35 was best for my dataset
+if it is underestimating, lower conf (e.g. to 0.3), or overestimating raise (e.g. to 0.4). 
+
+I ran multiple times to test and 0.35 was best for my dataset
 
 5. Evaluate training run 
 This uses a spatial evaluation script to get both false positive and false negative counts
@@ -157,8 +165,9 @@ python evaluate_spatial.py \
   --save_overlays
 ```
   
-#and in case you have to reclick the ROI for any individual images that were mistakes or weird:
-#add in the --reclick argument e.g.:
+and in case you have to reclick the ROI for any individual images that were mistakes or weird:
+
+add in the --reclick argument e.g.:
 ```
   --reclick P8174886 \
 ```
@@ -178,8 +187,9 @@ python infer_and_count.py \
   --tta 
 ```
 
-#while I was running this on my personal computer it stopped mid-run because I ran out of space
-#to clear this I removed my cache here:
+while I was running this on my personal computer it stopped mid-run because I ran out of space. 
+
+To clear this I removed my cache here:
 ```
 rm -f "$HOME/Library/Application Support/Ultralytics/persistent_cache.json"
 ```
